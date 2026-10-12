@@ -1,5 +1,5 @@
 //! Independent asynchronous photo-enhancement jobs and history.
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock, atomic::{AtomicU64, Ordering}};
 use std::time::{SystemTime, UNIX_EPOCH};
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Manager, State};
@@ -25,9 +25,8 @@ pub struct EnhancementTask {
 }
 
 static TASKS: OnceLock<Mutex<Vec<EnhancementTask>>> = OnceLock::new();
-static ACTIVE: OnceLock<Mutex<bool>> = OnceLock::new();
+static NEXT_ID: AtomicU64 = AtomicU64::new(1);
 fn tasks() -> &'static Mutex<Vec<EnhancementTask>> { TASKS.get_or_init(|| Mutex::new(Vec::new())) }
-fn active() -> &'static Mutex<bool> { ACTIVE.get_or_init(|| Mutex::new(false)) }
 fn now() -> u64 { SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis() as u64 }
 
 fn persist<R: tauri::Runtime>(app: &AppHandle<R>) {
@@ -52,14 +51,11 @@ pub fn restore<R: tauri::Runtime>(app: &AppHandle<R>) {
 pub fn list() -> Vec<EnhancementTask> { tasks().lock().unwrap_or_else(|p| p.into_inner()).clone() }
 
 pub fn start<R: tauri::Runtime>(app: AppHandle<R>, state: State<'_, SharedLibrary>, asset_id: String) -> Result<EnhancementTask, LumenError> {
-    let mut gate = active().lock().unwrap_or_else(|p| p.into_inner());
-    if *gate { return Err(LumenError::unsupported("已有一张照片正在增强，请等待任务完成")); }
     let (source, file_name) = { let guard = state.lock().map_err(|_| LumenError::io("图库状态已损坏"))?; let pos = *guard.index.get(&asset_id).ok_or_else(|| LumenError::io("找不到这张照片"))?; (guard.assets[pos].path.clone(), guard.assets[pos].file_name.clone()) };
     let input_bytes = std::fs::metadata(&source).map_err(LumenError::from)?.len();
     let model = crate::models::weight_file(&app, crate::enhance::MODEL_ID)?;
     if !model.exists() { return Err(LumenError::not_indexed("增强模型尚未下载，请先在设置中下载")); }
-    *gate = true;
-    let id = format!("enh-{}", now());
+    let id = format!("enh-{}-{}", now(), NEXT_ID.fetch_add(1, Ordering::Relaxed));
     let row = EnhancementTask { id: id.clone(), asset_id, file_name, source_path: source.to_string_lossy().into_owned(), output_path: None, started_at: now(), finished_at: None, duration_ms: None, status: "running".into(), input_bytes, output_bytes: None, error: None, preview_path: None };
     tasks().lock().unwrap_or_else(|p| p.into_inner()).push(row.clone()); persist(&app);
     tauri::async_runtime::spawn_blocking(move || {
@@ -79,7 +75,6 @@ pub fn start<R: tauri::Runtime>(app: AppHandle<R>, state: State<'_, SharedLibrar
         let ended = now();
         let mut rows = tasks().lock().unwrap_or_else(|p| p.into_inner());
         if let Some(row) = rows.iter_mut().find(|r| r.id == id) { row.finished_at = Some(ended); row.duration_ms = Some(ended.saturating_sub(row.started_at)); match result { Ok((paths, size)) => { let mut it = paths.split('|'); row.output_path = it.next().map(str::to_owned); row.preview_path = it.next().map(str::to_owned); row.output_bytes = Some(size); row.status = "succeeded".into(); }, Err(err) => { row.status = "failed".into(); row.error = Some(err.to_string()); } } }
-        *active().lock().unwrap_or_else(|p| p.into_inner()) = false;
         persist(&app);
     });
     Ok(row)
