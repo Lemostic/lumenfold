@@ -1,0 +1,375 @@
+@import "@lumenfold/tokens";
+@import "tailwindcss";
+
+/* =============================================================================
+   全局基础样式。颜色一律走令牌,不写字面色值。
+   v2 重设计:三阶视觉层级 / 暗房琥珀 / Geist 单阶梯字体 / 4px 栅格
+   ========================================================================== */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--lf-bg);
+    color: var(--lf-text);
+    font-family: var(--lf-font-sans);
+    font-size: var(--lf-text-sm);
+    font-weight: var(--lf-weight-regular);
+    line-height: var(--lf-leading-snug);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+    /* 桌面应用外壳:禁止整页文本选择,缩略图与表格各自处理 */
+    user-select: none;
+    cursor: default;
+    overflow: hidden;
+  }
+
+  /* 所有可交互元素统一焦点环,键盘可见、鼠标点击不打扰 */
+  :focus-visible {
+    outline: 2px solid var(--lf-focus);
+    outline-offset: 2px;
+    border-radius: var(--lf-radius-xs);
+  }
+
+  ::selection {
+    background: var(--lf-accent-soft);
+    color: var(--lf-text);
+  }
+
+  /* 数字对齐用等宽表格数字,状态栏与元数据表格依赖它 */
+  .tabular {
+    font-family: var(--lf-font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* 唯一滚动容器的滚动条:细、低对比、不抢视觉 */
+  .scroll-area {
+    scrollbar-width: thin;
+    scrollbar-color: var(--lf-border-strong) transparent;
+  }
+
+  .scroll-area::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .scroll-area::-webkit-scrollbar-thumb {
+    background: var(--lf-border-strong);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: var(--lf-radius-full);
+  }
+
+  .scroll-area::-webkit-scrollbar-thumb:hover {
+    background: var(--lf-text-3);
+    background-clip: content-box;
+  }
+
+  .scroll-area::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* 可选中的文本区域(关键词、路径、错误详情) */
+  .selectable {
+    user-select: text;
+    cursor: text;
+  }
+
+  /* 二级文字:正文里描述性的辅助行 */
+  .text-secondary {
+    color: var(--lf-text-2);
+  }
+
+  /* 三级文字:标签、次要信息 */
+  .text-tertiary {
+    color: var(--lf-text-3);
+  }
+}
+
+@layer components {
+  /* 滑块拇指 */
+  .lf-range::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: var(--lf-surface);
+    border: 2px solid var(--lf-accent);
+    transition: transform var(--lf-duration-fast) var(--lf-ease);
+  }
+
+  .lf-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .lf-range::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: var(--lf-surface);
+    border: 2px solid var(--lf-accent);
+  }
+
+  /* 缩略图进入视口时的淡入。唯一一处入场动效,110ms,不阻塞滚动 */
+  .thumb-enter {
+    animation: thumb-enter var(--lf-duration) var(--lf-ease) both;
+  }
+
+  @keyframes thumb-enter {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* 骨架屏微光 */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--lf-surface-2);
+  }
+
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--lf-surface-3),
+      transparent
+    );
+    animation: skeleton-sweep 1400ms var(--lf-ease) infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* -----------------------------------------------------------------
+     v2 视觉层:三阶语义化层级
+     - chrome-card:侧栏、检查器等常驻容器(浅,描边,不浮)
+     - chrome-popover:小弹层,提示框,角标(中,阴影 panel)
+     - chrome-modal:模态对话框(深,阴影 modal,模糊背景)
+     ----------------------------------------------------------------- */
+
+  .chrome-card {
+    background: var(--lf-surface);
+    border: 1px solid var(--lf-border);
+  }
+
+  .chrome-popover {
+    background: var(--lf-popover);
+    box-shadow: var(--lf-shadow-pop);
+  }
+
+  .chrome-modal {
+    background: var(--lf-surface);
+    border: 1px solid var(--lf-border-strong);
+    box-shadow: var(--lf-shadow-modal);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 控件统一基线:高度、圆角、内边距,组件不再各写一套
+     ----------------------------------------------------------------- */
+
+  .control-sm {
+    height: var(--lf-control-sm);
+    border-radius: var(--lf-radius-md);
+    font-size: var(--lf-text-xs);
+  }
+
+  .control-md {
+    height: var(--lf-control-md);
+    border-radius: var(--lf-radius-md);
+    font-size: var(--lf-text-sm);
+  }
+
+  .control-lg {
+    height: var(--lf-control-lg);
+    border-radius: var(--lf-radius-md);
+    font-size: var(--lf-text-md);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 卡片:小卡/大卡两种规格
+     ----------------------------------------------------------------- */
+
+  .lf-card {
+    background: var(--lf-surface);
+    border: 1px solid var(--lf-border);
+    border-radius: var(--lf-radius-lg);
+    padding: var(--lf-space-3);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 容器统一间距
+     ----------------------------------------------------------------- */
+
+  .chrome-divider-v {
+    width: 1px;
+    height: 16px;
+    background: var(--lf-border);
+  }
+
+  .chrome-divider-h {
+    height: 1px;
+    background: var(--lf-border);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 Switch 组件(问题 4)
+     ----------------------------------------------------------------- */
+
+  .lf-switch {
+    position: relative;
+    display: inline-flex;
+    height: 20px;
+    width: 32px;
+    cursor: pointer;
+    align-items: center;
+    border-radius: var(--lf-radius-full);
+    background: var(--lf-surface-3);
+    border: 1px solid var(--lf-border);
+    transition:
+      background-color var(--lf-duration-fast) var(--lf-ease),
+      border-color var(--lf-duration-fast) var(--lf-ease);
+  }
+
+  .lf-switch[data-on="true"] {
+    background: var(--lf-accent);
+    border-color: var(--lf-accent);
+  }
+
+  .lf-switch[data-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .lf-switch__thumb {
+    position: absolute;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: var(--lf-radius-full);
+    background: var(--lf-text);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+    transition: transform var(--lf-duration-fast) var(--lf-ease);
+  }
+
+  .lf-switch[data-on="true"] .lf-switch__thumb {
+    transform: translateX(12px);
+    background: var(--lf-accent-ink);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 Tooltip 组件
+     ----------------------------------------------------------------- */
+
+  .lf-tooltip {
+    position: relative;
+    display: inline-flex;
+  }
+
+  .lf-tooltip__bubble {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    white-space: nowrap;
+    pointer-events: none;
+    background: var(--lf-popover);
+    border: 1px solid var(--lf-border-strong);
+    color: var(--lf-text);
+    font-size: var(--lf-text-xs);
+    line-height: 1;
+    padding: 6px 8px;
+    border-radius: var(--lf-radius-sm);
+    box-shadow: var(--lf-shadow-pop);
+    opacity: 0;
+    transition:
+      opacity var(--lf-duration-fast) var(--lf-ease),
+      transform var(--lf-duration-fast) var(--lf-ease);
+    z-index: var(--lf-z-popover);
+  }
+
+  .lf-tooltip:hover:not([data-disabled="true"]) .lf-tooltip__bubble,
+  .lf-tooltip:focus-within .lf-tooltip__bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* -----------------------------------------------------------------
+     v2 顶部边光:状态变化的呼吸灯带
+     ----------------------------------------------------------------- */
+
+  .lf-edge-glow {
+    position: relative;
+  }
+
+  .lf-edge-glow::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--lf-accent-glow),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity var(--lf-duration-slow) var(--lf-ease);
+    pointer-events: none;
+  }
+
+  .lf-edge-glow[data-active="true"]::after {
+    opacity: 1;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   降级。系统要求减少动效时,所有过渡与动画立即停用,
+   包括骨架微光这类会被误认为卡住的循环动画。
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 标题栏拖拽区:只有这里允许鼠标手势 */
+.drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}

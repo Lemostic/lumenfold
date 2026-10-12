@@ -1,0 +1,32 @@
+[package]
+name = "lumenfold-index"
+version = "0.1.0"
+description = "Filesystem walk, header probing and asset identity for Lumenfold"
+license = "AGPL-3.0-or-later"
+edition = "2021"
+rust-version = "1.77.2"
+publish = false
+
+[dependencies]
+blake3 = "1"
+image = { version = "0.25.10", default-features = false, features = [
+  "jpeg",
+  "png",
+  "webp",
+  "tiff",
+  "bmp",
+  "gif",
+] }
+kamadak-exif = "0.6.1"
+walkdir = "2.5"
+# `AssetRecord` is written to the on-disk index snapshot (see the app crate's
+# `library_index` module), so the record has to round-trip through serde. The
+# crate keeps no other serde dependency and this one is deliberately featureless
+# `std` — a persisted index that changes shape is a bug, not a migration.
+serde = { version = "1", features = ["derive"] }
+
+# HEIC 的尺寸和拍摄时间：`image` 没有 HEIF 解码器，`probe()` 只能读到 0x0。
+# WIC 是系统自带的编解码层，不引入任何需要编译的原生依赖（详见该 crate 的模块文档）。
+# 只在 Windows 上挂载；其他平台由 lumenfold-wic 的空实现补上，调用方不写 `cfg`。
+[target.'cfg(target_os = "windows")'.dependencies]
+lumenfold-wic = { path = "../lumenfold-wic" }

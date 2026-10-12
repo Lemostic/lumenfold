@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Lumenfold</title>
+    <script>
+      // 在首帧之前落定主题，避免闪白。默认跟随系统，用户选择后写入 localStorage。
+      (function () {
+        try {
+          var saved = localStorage.getItem("lumenfold.theme");
+          // 没有存过偏好时默认亮色。参考的那版界面是亮色的，而相机/相册类工具
+          // 绝大多数时间在亮环境下看片——暗色仍然一键可切。
+          var theme = saved === "light" || saved === "dark" ? saved : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

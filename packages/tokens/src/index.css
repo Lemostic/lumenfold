@@ -1,0 +1,279 @@
+/* =============================================================================
+   @lumenfold/tokens
+   Lumenfold 设计令牌。插件跟随宿主主题的唯一契约。
+   任何颜色都必须来自这里，不得在组件里写死十六进制值。
+   v2 重设计:三阶视觉层级 / 暗房琥珀 / Geist 单阶梯字体 / 4px 栅格
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   1. 原始色值。两套完整主题,暗色为默认,亮色为平级主题,不做局部反转。
+   页面主题锁:整页同一主题,由 <html data-theme> 切换。
+
+   暗色基调从冷石墨 0b0c0e 微调到带蓝紫的 0d0e12,降低与琥珀强调色的色温冲突。
+   ---------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  /* 中性层:冷蓝紫石墨 */
+  --lf-bg: #0d0e12;
+  --lf-bg-sunken: #08090c;
+  --lf-surface: #131418;
+  --lf-surface-2: #1a1c21;
+  --lf-surface-3: #23262d;
+  --lf-popover: #1c1f25;
+  --lf-overlay: rgb(8 9 12 / 0.62);
+  --lf-border: #272a31;
+  --lf-border-strong: #383c46;
+  --lf-border-subtle: #1d2025;
+
+  /* 文字层 */
+  --lf-text: #ebedf0;
+  --lf-text-2: #9ea5b0;
+  --lf-text-3: #7b818c;
+  --lf-text-disabled: #565c66;
+
+  /* 唯一强调色:暗房安全灯琥珀 */
+  --lf-accent: #f2a93b;
+  --lf-accent-hover: #f7bc5e;
+  --lf-accent-active: #e0922a;
+  --lf-accent-ink: #1b1206;
+  --lf-accent-soft: rgb(242 169 59 / 0.14);
+  --lf-accent-line: rgb(242 169 59 / 0.42);
+  --lf-accent-glow: rgb(242 169 59 / 0.18);
+
+  /* 链接色:冷调信息蓝,与琥珀形成二元强调 */
+  --lf-link: #79b8ff;
+  --lf-link-soft: rgb(121 184 255 / 0.14);
+
+  /* 语义色,只用于真实状态,不作装饰 */
+  --lf-danger: #e5484d;
+  --lf-danger-soft: rgb(229 72 77 / 0.14);
+  --lf-danger-line: rgb(229 72 77 / 0.42);
+  --lf-warn: #e0a92e;
+  --lf-warn-soft: rgb(224 169 46 / 0.14);
+  --lf-warn-line: rgb(224 169 46 / 0.42);
+  --lf-success: #3fb950;
+  --lf-success-soft: rgb(63 185 80 / 0.14);
+  --lf-success-line: rgb(63 185 80 / 0.42);
+
+  /* 阴影按背景色相着色,禁止纯黑投影 */
+  --lf-shadow-panel: 0 1px 2px rgb(4 6 10 / 0.36), 0 10px 28px rgb(4 6 10 / 0.3);
+  --lf-shadow-pop: 0 2px 6px rgb(4 6 10 / 0.44), 0 18px 48px rgb(4 6 10 / 0.4);
+  --lf-shadow-modal: 0 4px 16px rgb(4 6 10 / 0.5), 0 28px 80px rgb(4 6 10 / 0.5);
+  --lf-shadow-thumb-hover: 0 2px 8px rgb(4 6 10 / 0.32), 0 12px 32px rgb(4 6 10 / 0.28);
+
+  /* 焦点环 */
+  --lf-focus: var(--lf-accent);
+  --lf-focus-halo: rgb(242 169 59 / 0.28);
+
+  /* chrome 尺寸:标题栏 / 工具栏 / 状态栏 / 侧栏 / 检查器 / 通用 */
+  --lf-chrome-titlebar: 36px;
+  --lf-chrome-toolbar: 44px;
+  --lf-chrome-statusbar: 28px;
+  --lf-chrome-searchbar: 56px;
+  --lf-chrome-sidebar: 220px;
+  --lf-chrome-sidebar-collapsed: 56px;
+  --lf-chrome-inspector: 288px;
+
+  /* 控件高度 */
+  --lf-control-sm: 28px;
+  --lf-control-md: 32px;
+  --lf-control-lg: 40px;
+  --lf-control-icon-sm: 24px;
+  --lf-control-icon-md: 28px;
+  --lf-control-icon-lg: 32px;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --lf-bg: #f5f6f8;
+  --lf-bg-sunken: #ebedf0;
+  --lf-surface: #ffffff;
+  --lf-surface-2: #f2f4f7;
+  --lf-surface-3: #e7eaef;
+  --lf-popover: #ffffff;
+  --lf-overlay: rgb(28 32 40 / 0.4);
+  --lf-border: #e0e3e8;
+  --lf-border-strong: #c8ccd3;
+  --lf-border-subtle: #eceff3;
+
+  --lf-text: #14171b;
+  --lf-text-2: #5a626c;
+  --lf-text-3: #656d77;
+  --lf-text-disabled: #adb1b8;
+
+  --lf-accent: #9a5b00;
+  --lf-accent-hover: #7f4c00;
+  --lf-accent-active: #6a3f00;
+  --lf-accent-ink: #ffffff;
+  --lf-accent-soft: rgb(154 91 0 / 0.1);
+  --lf-accent-line: rgb(154 91 0 / 0.38);
+  --lf-accent-glow: rgb(154 91 0 / 0.18);
+
+  --lf-link: #0561c2;
+  --lf-link-soft: rgb(5 97 194 / 0.1);
+
+  --lf-danger: #c62b30;
+  --lf-danger-soft: rgb(198 43 48 / 0.1);
+  --lf-danger-line: rgb(198 43 48 / 0.36);
+  --lf-warn: #a06400;
+  --lf-warn-soft: rgb(160 100 0 / 0.1);
+  --lf-warn-line: rgb(160 100 0 / 0.36);
+  --lf-success: #1f7a38;
+  --lf-success-soft: rgb(31 122 38 / 0.1);
+  --lf-success-line: rgb(31 122 38 / 0.36);
+
+  --lf-shadow-panel: 0 1px 2px rgb(24 30 42 / 0.06), 0 10px 28px rgb(24 30 42 / 0.08);
+  --lf-shadow-pop: 0 2px 6px rgb(24 30 42 / 0.1), 0 18px 48px rgb(24 30 42 / 0.12);
+  --lf-shadow-modal: 0 4px 16px rgb(24 30 42 / 0.14), 0 28px 80px rgb(24 30 42 / 0.18);
+  --lf-shadow-thumb-hover: 0 2px 8px rgb(24 30 42 / 0.06), 0 12px 32px rgb(24 30 42 / 0.08);
+
+  --lf-focus-halo: rgb(154 91 0 / 0.24);
+}
+
+/* -----------------------------------------------------------------------------
+   2. 字体。Geist 不含中文字形,必须挂 CJK 回退链;界面文案是中文。
+   字重只暴露 400/500/600 三档,避免组件里随手写 700/800。
+   ---------------------------------------------------------------------------- */
+
+:root {
+  --lf-font-sans: "Geist Variable", "Geist", "PingFang SC", "HarmonyOS Sans SC",
+    "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Source Han Sans SC",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --lf-font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, SFMono-Regular,
+    "SF Mono", Menlo, "Cascadia Mono", Consolas, "Noto Sans Mono CJK SC", monospace;
+
+  /* 字号阶梯(px)。11px 起,正文基准 13px,工具界面密度由此决定。 */
+  --lf-text-2xs: 11px;
+  --lf-text-xs: 12px;
+  --lf-text-sm: 13px;
+  --lf-text-md: 14px;
+  --lf-text-lg: 16px;
+  --lf-text-xl: 19px;
+  --lf-text-2xl: 24px;
+
+  /* 字重阶梯 */
+  --lf-weight-regular: 400;
+  --lf-weight-medium: 500;
+  --lf-weight-semibold: 600;
+
+  /* 行高 */
+  --lf-leading-tight: 1.25;
+  --lf-leading-snug: 1.4;
+  --lf-leading-normal: 1.5;
+  --lf-leading-relaxed: 1.62;
+
+  /* 字距 */
+  --lf-tracking-tight: -0.01em;
+  --lf-tracking-normal: 0;
+  --lf-tracking-wide: 0.04em;
+
+  /* 圆角:一条规则,2px 缩略图 / 6px 控件与面板 / 999px 芯片与头像 */
+  --lf-radius-xs: 2px;
+  --lf-radius-sm: 4px;
+  --lf-radius-md: 6px;
+  --lf-radius-lg: 10px;
+  --lf-radius-xl: 14px;
+  --lf-radius-full: 999px;
+
+  /* 间距栅格(4px 基线) */
+  --lf-space-0: 0;
+  --lf-space-1: 4px;
+  --lf-space-2: 8px;
+  --lf-space-3: 12px;
+  --lf-space-4: 16px;
+  --lf-space-5: 20px;
+  --lf-space-6: 24px;
+  --lf-space-8: 32px;
+  --lf-space-10: 40px;
+  --lf-space-12: 48px;
+
+  /* 动效:只做状态过渡,不做滚动编排 */
+  --lf-duration-fast: 110ms;
+  --lf-duration: 160ms;
+  --lf-duration-slow: 240ms;
+  --lf-ease: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --lf-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 层级表。只在此处定义,不允许在组件里随手写 z-50。 */
+  --lf-z-base: 0;
+  --lf-z-sticky: 10;
+  --lf-z-overlay: 20;
+  --lf-z-popover: 30;
+  --lf-z-dialog: 40;
+  --lf-z-toast: 50;
+}
+
+/* -----------------------------------------------------------------------------
+   3. Tailwind v4 映射。inline 关键字让工具类直接引用变量,
+   主题切换时不需要重新构建。
+   -------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-bg: var(--lf-bg);
+  --color-sunken: var(--lf-bg-sunken);
+  --color-surface: var(--lf-surface);
+  --color-surface-2: var(--lf-surface-2);
+  --color-surface-3: var(--lf-surface-3);
+  --color-popover: var(--lf-popover);
+  --color-overlay: var(--lf-overlay);
+  --color-line: var(--lf-border);
+  --color-line-strong: var(--lf-border-strong);
+  --color-line-subtle: var(--lf-border-subtle);
+
+  --color-ink: var(--lf-text);
+  --color-ink-2: var(--lf-text-2);
+  --color-ink-3: var(--lf-text-3);
+  --color-ink-disabled: var(--lf-text-disabled);
+
+  --color-accent: var(--lf-accent);
+  --color-accent-hover: var(--lf-accent-hover);
+  --color-accent-active: var(--lf-accent-active);
+  --color-accent-ink: var(--lf-accent-ink);
+  --color-accent-soft: var(--lf-accent-soft);
+  --color-accent-line: var(--lf-accent-line);
+  --color-accent-glow: var(--lf-accent-glow);
+
+  --color-link: var(--lf-link);
+  --color-link-soft: var(--lf-link-soft);
+
+  --color-danger: var(--lf-danger);
+  --color-danger-soft: var(--lf-danger-soft);
+  --color-danger-line: var(--lf-danger-line);
+  --color-warn: var(--lf-warn);
+  --color-warn-soft: var(--lf-warn-soft);
+  --color-warn-line: var(--lf-warn-line);
+  --color-success: var(--lf-success);
+  --color-success-soft: var(--lf-success-soft);
+  --color-success-line: var(--lf-success-line);
+
+  --font-sans: var(--lf-font-sans);
+  --font-mono: var(--lf-font-mono);
+
+  --text-2xs: var(--lf-text-2xs);
+  --text-xs: var(--lf-text-xs);
+  --text-sm: var(--lf-text-sm);
+  --text-md: var(--lf-text-md);
+  --text-lg: var(--lf-text-lg);
+  --text-xl: var(--lf-text-xl);
+  --text-2xl: var(--lf-text-2xl);
+
+  --radius-xs: var(--lf-radius-xs);
+  --radius-sm: var(--lf-radius-sm);
+  --radius-md: var(--lf-radius-md);
+  --radius-lg: var(--lf-radius-lg);
+  --radius-xl: var(--lf-radius-xl);
+
+  --shadow-panel: var(--lf-shadow-panel);
+  --shadow-pop: var(--lf-shadow-pop);
+  --shadow-modal: var(--lf-shadow-modal);
+
+  --ease-lf: var(--lf-ease);
+  --ease-lf-out: var(--lf-ease-out);
+}
+
+/* 主题变体绑定到 data-theme 属性,不使用 class 切换 */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

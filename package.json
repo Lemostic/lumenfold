@@ -1,0 +1,22 @@
+{
+  "name": "lumenfold",
+  "private": true,
+  "version": "0.1.0",
+  "description": "本地优先、可插件扩展的照片资产管理器",
+  "license": "AGPL-3.0-or-later",
+  "packageManager": "pnpm@10.12.4",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @lumenfold/desktop dev",
+    "build": "pnpm --filter @lumenfold/desktop build",
+    "preview": "pnpm --filter @lumenfold/desktop preview",
+    "typecheck": "pnpm --filter @lumenfold/desktop typecheck",
+    "tauri": "pnpm --filter @lumenfold/desktop tauri",
+    "tauri:dev": "pnpm --filter @lumenfold/desktop tauri:dev",
+    "tauri:build": "pnpm --filter @lumenfold/desktop tauri:build",
+    "build:installer": "node scripts/build-installer.mjs"
+  }
+}

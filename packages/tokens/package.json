@@ -1,0 +1,22 @@
+{
+  "name": "@lumenfold/tokens",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lumenfold 设计令牌：插件跟随宿主主题的唯一契约",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "exports": {
+    ".": "./src/index.css",
+    "./tokens": "./src/tokens.ts",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

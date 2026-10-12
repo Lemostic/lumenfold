@@ -1,0 +1,21 @@
+[package]
+name = "lumenfold-wic"
+version = "0.1.0"
+description = "HEIF/HEIC decoding through the Windows Imaging Component"
+license = "AGPL-3.0-or-later"
+edition = "2021"
+rust-version = "1.77.2"
+publish = false
+
+# WIC 是操作系统自带的编解码层：HEIC 的能力来自已安装的
+# `Microsoft.HEIFImageExtension`，本 crate 一行原生代码都不编译，
+# 也不重新分发任何 LGPL 组件。非 Windows 目标上整个实现退化成
+# 返回 None/false 的空壳，调用方不需要 `cfg` 分支。
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62", features = [
+  "Win32_Foundation",
+  # COM 初始化与 CoCreateInstance。
+  "Win32_System_Com",
+  # IWICImagingFactory 及其解码器/缩放器/格式转换器。
+  "Win32_Graphics_Imaging",
+] }

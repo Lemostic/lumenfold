@@ -1,0 +1,100 @@
+[workspace]
+members = ["crates/*"]
+# The root is both the app package and the workspace root. Without this,
+# `default-members` is the root package alone and `cargo test` here would skip
+# the index crate's tests, so both are listed explicitly.
+default-members = [".", "crates/*"]
+
+[package]
+name = "lumenfold-desktop"
+version = "0.1.0"
+description = "Lumenfold photo asset manager"
+authors = ["Lumenfold contributors"]
+license = "AGPL-3.0-or-later"
+edition = "2021"
+# 1.88 是 `ort` 2.0.0-rc.13 的下限（它自己声明 rust-version = "1.88"，并且用
+# edition 2024，需要 Cargo ≥ 1.85）。这个数字以前是 1.77.2。为了让画质增强用上
+# ONNX Runtime，它必须抬上去——抬的是一个真实存在的依赖下限，不是随手写的。
+rust-version = "1.88"
+publish = false
+
+[lib]
+# The desktop app reuses these modules; `staticlib`/`cdylib` are what Tauri links
+# on desktop, `rlib` keeps the crate usable from tests and future integration crates.
+name = "lumenfold_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+lumenfold-index = { path = "crates/lumenfold-index" }
+# HEIC 的缩略图与全图：`image` 没有 HEIF 解码器，WebView2 也渲染不了 image/heic，
+# 所以缩略图和 Lightbox 都要自己解码再编码成 JPEG。WIC 是系统自带编解码层，
+# 见该 crate 的模块文档（零新增构建依赖、零 LGPL 再分发）。
+lumenfold-wic = { path = "crates/lumenfold-wic" }
+image = { version = "0.25.10", default-features = false, features = [
+  "jpeg",
+  "png",
+  "webp",
+  "tiff",
+  "bmp",
+  "gif",
+] }
+lru = "0.18"
+# DCT shrink-on-load for JPEG thumbnails. `image` 0.25 decodes JPEG through
+# zune-jpeg, which has no scaled-decode entry point, so a 12 MP source has to be
+# fully decoded before it can be shrunk. `jpeg-decoder` can decode straight out
+# of the 1/2, 1/4 or 1/8 DCT block, which is where the thumbnail speedup comes
+# from. Pure Rust, no new native dependency.
+jpeg-decoder = { version = "0.3", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# 模型下载器（ADR-0002 §4）。`reqwest` 已经在树里（tauri 的移动端目标带进来的），
+# 这里只是把它变成直接依赖并打开 TLS。
+#
+# 用 `rustls-no-provider` 而不是默认的 `rustls`：默认 provider 是 aws-lc-rs，
+# 那是一个需要 C 工具链的重量级构建；`ring` 在这台机器的 registry 缓存里已经有了，
+# 并且在 Windows 上同样走纯 Rust 路径。代价是 provider 要我们自己装一次，
+# 见 `models::install_crypto_provider`。
+reqwest = { version = "0.13", default-features = false, features = [
+  "rustls-no-provider",
+  # 传输跑在 spawn_blocking 上，blocking 客户端比手写 async 状态机好读得多。
+  "blocking",
+  "http2",
+  "charset",
+] }
+rustls = { version = "0.23", default-features = false, features = [
+  "ring",
+  "std",
+  "tls12",
+  "logging",
+] }
+# 下载完成后的完整性校验。ADR-0002 §4：只有校验通过才允许标记为 ready。
+sha2 = "0.10"
+hex = "0.4"
+tauri-plugin-clipboard = "2.1.11"
+
+# 画质增强的推理引擎（ADR-0001 里规划的 ONNX Runtime）。
+#
+# `default-features = false` 不是可选项：ort 的默认特性里带着 `download-binaries`，
+# 那个构建脚本会去 cdn.pyke.io 取运行时——该主机在这台机器上不可达，构建会一直
+# 挂着（实测 13 分钟零输出）。所以运行时库我们随包发，用 `load-dynamic` 在启动时
+# 把路径告诉它，见 `enhance` 模块的模块文档。
+#
+# `directml` 给出 DirectML 执行提供者。实测它比 CPU 快 2.5 倍（12MP 从 22 分钟降到
+# 8-9 分钟），且输出与 CPU 逐像素一致（943 万像素里只有 71 个差 1/255）。
+ort = { version = "=2.0.0-rc.13", default-features = false, features = [
+  "load-dynamic",
+  "ndarray",
+  "directml",
+] }
+
+# Already in the tree as a transitive dependency of tauri-runtime-wry; listed
+# directly because `files.rs` needs the Recycle Bin shell API. Same version, so
+# this only adds features to the build that already exists.
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_UI_Shell", "Win32_System_DataExchange", "Win32_System_Memory"] }
